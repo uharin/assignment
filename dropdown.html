@@ -1,0 +1,206 @@
+<div id="dropdown-container">
+  <div class="dropdown">
+    <button class="dropdown-button">
+      <span>Menu 1</span>
+      <span class="chevron bottom"></span>
+    </button>
+    <div class="dropdown-content">
+      <h1>Menu 1</h1>
+      <a class="menu-link" href="#">Item 1</a>
+      <a class="menu-link" href="#">Item 2</a>
+      <a class="menu-link" href="#">Item 3</a>
+    </div>
+  </div>
+  <div class="dropdown">
+    <button class="dropdown-button">
+      <span>Menu 2</span>
+      <span class="chevron bottom"></span>
+    </button>
+    <div class="dropdown-content">
+      <h1>Menu 2</h1>
+      <a class="menu-link" href="#">Item 4</a>
+      <a class="menu-link" href="#">Item 5</a>
+      <a class="menu-link" href="#">Item 6</a>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Global styles */
+  * {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 16px;
+    box-sizing: border-box;
+  }
+
+  #dropdown-container {
+    width: 500px;
+    display: flex;
+    flex-direction: row;
+  }
+
+  .dropdown {
+    width: 50%;
+  }
+
+  /* Style the dropdown button */
+  .dropdown-button {
+    width: 100%;
+    background-color: #003171;
+    color: white;
+    padding: 16px;
+    font-weight: 700;
+    border: none;
+    padding: 12px 16px;
+  }
+
+  /* Change the background color of the dropdown button on hover */
+  .dropdown:hover .dropdown-button {
+    background-color: #4caf50;
+    cursor: pointer;
+  }
+
+  .open {
+    background-color: #4caf50;
+  }
+  
+  /* Style the dropdown menu */
+  .dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #fff;
+    min-width: 250px;
+    border: 2px solid black;
+    z-index: 1;
+  }
+
+  .dropdown-content > * {
+    margin: 0;
+    padding: 12px 16px;
+  }
+  
+  /* Style the links inside the dropdown */
+  .dropdown-content a {
+    display: block;
+  }
+  
+  /* Change color of dropdown links on hover */
+  .dropdown-content a:hover {
+    background-color: #f1f1f1;
+  }
+
+  .show {
+    display: block;
+  }
+
+  /* Chevron styling taken from https://codepen.io/stepher/pen/yLOaEOP */
+  .chevron::before {
+    border-style: solid;
+    border-width: 0.2em 0.2em 0 0;
+    content: "";
+    display: inline-block;
+    height: 0.35em;
+    left: 0.4em;
+    margin-top: 4px;
+    position: relative;
+    vertical-align: top;
+    width: 0.35em;
+  }
+
+  /* Chevron rotation styles */
+  .chevron.bottom:before {
+    top: 0;
+    transform: rotate(135deg);
+    transition: 100ms linear all;
+  }
+
+  .chevron.rotated:before {
+    top: 2;
+    transform: rotate(315deg);
+    transition: 100ms linear all;
+  }
+</style>
+
+<script>
+  const [dropdown1, dropdown2] = document.querySelectorAll(".dropdown-button");
+
+  const openMenu = (dropdown) => {
+    dropdown.classList.add("open");
+    dropdown.children[0].innerHTML = 'Close';
+    dropdown.children[1].classList.add("rotated");
+
+    const menu = dropdown.nextElementSibling;
+    menu.classList.add("show");
+  };
+
+  const closeMenu = (dropdown) => {
+    dropdown.classList.remove("open");
+    dropdown.children[0].innerHTML = `Menu ${dropdown.number}`;
+    dropdown.children[1].classList.remove("rotated");
+
+    const menu = dropdown.nextElementSibling;
+    menu.classList.remove("show");
+  };
+
+  [dropdown1, dropdown2].forEach((dropdown, index) => {
+    // Set 'number' property on dropdowns to dynamically change text of dropdown button in closeMenu function
+    dropdown.number = {
+      0: '1',
+      1: '2',
+    }[index];
+
+    const sibling = dropdown === dropdown1 ? dropdown2 : dropdown1;
+
+    // Add a click event listener to each dropdown button to open clicked menu and close any open menus
+    dropdown.addEventListener("click", () => {
+      if (dropdown.nextElementSibling.classList.contains("show")) {
+        return;
+      } else {
+        openMenu(dropdown);
+        closeMenu(sibling);
+      }
+    });
+  });
+
+  // Close all menus if click occurs outside of menu container
+  document.addEventListener("click", (e) => {
+    const container = document.getElementById("dropdown-container");
+    
+    if (container.contains(e.target)) {
+      return;
+    } else {
+      [dropdown1, dropdown2].forEach((dropdown) => {
+        closeMenu(dropdown);
+      });
+    }
+  });
+
+  document.addEventListener("keydown", (event) => {
+    // Close all menus if 'ESC' is pressed
+    if (event.keyCode === 27) {
+      // 27 is the keycode for the 'ESC' key
+      [dropdown1, dropdown2].forEach((dropdown) => {
+        closeMenu(dropdown);
+      });
+    }
+    // If menu is open, allow the user to tab through the menu links
+    if (event.keyCode === 9) {
+      // 9 is the keycode for the TAB key
+      [dropdown1, dropdown2].forEach((dropdown) => {
+        if (dropdown.nextElementSibling.classList.contains("show")) {
+          return;
+        }
+      });
+    } else {
+      // Prevent the focus event from happening and prevent the user from tabbing through the menu links
+      event.preventDefault();
+    }
+  });
+
+  // Prevent the menu links from receiving focus by default
+  document.querySelectorAll(".menu-link").forEach((link) => {
+    link.addEventListener("focus", (event) => {
+      event.preventDefault();
+    });
+  });
+</script>
